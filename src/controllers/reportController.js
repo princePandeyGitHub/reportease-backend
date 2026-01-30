@@ -2,6 +2,7 @@
 import Report from "../../models/Report.js";
 import { extractTextFromPDF } from "../utils/ocrSpace.js";
 import { analyzeMedicalReport } from "../utils/groqAI.js";
+import { updateUserHealthProfile } from "../utils/updateUserHealthProfile.js";
 
 export const analyzeReport = async (req, res) => {
     try {
@@ -11,8 +12,6 @@ export const analyzeReport = async (req, res) => {
 
         // 1️⃣ OCR step
         const rawText = await extractTextFromPDF(req.file.path);
-
-        console.log("OCR TEXT LENGTH:", rawText.length);
 
 
         // 2️⃣ AI step (PASS TEXT!)
@@ -36,9 +35,19 @@ export const analyzeReport = async (req, res) => {
             file: fileData,
         });
 
+        const updatedProfile = await updateUserHealthProfile(
+            req.userId,
+            aiResult.aiSummary,
+            aiResult.flags
+        );
+
+
         res.status(201).json({
             message: "Report analyzed successfully",
-            reportId: report._id
+            reportId: report._id,
+            aiSummary: report.aiSummary,
+            keyFindings: report.keyFindings,
+            flags: report.flags
         });
 
     } catch (err) {
