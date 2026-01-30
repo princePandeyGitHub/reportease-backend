@@ -2,12 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import path from "path";
 
 // accessing env file
 dotenv.config();
 
 // importing routes
 import authRoute from './routes/authRoute.js';
+import reportsRoute from './routes/reportsRoute.js';
 
 // default settings
 const app = express();
@@ -17,6 +20,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(cookieParser());
 
 // connecting database
 mongoose
@@ -26,6 +30,9 @@ mongoose
 
 // applying routes
 app.use('/auth',authRoute);
+app.use('/reports',reportsRoute);
+app.use("/uploads/reports", express.static(path.join(process.cwd(), "uploads/reports")));
+
 
 // default first page
 app.get('/', (req, res) => {
