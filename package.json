@@ -1,0 +1,36 @@
+{
+  "name": "reportease-backend",
+  "version": "1.0.0",
+  "description": "An AI based health assistant platform which helps users to directly upload complex medical reports and get insights in simple language",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "this is test",
+    "dev": "nodemon ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/princePandeyGitHub/reportease-backend.git"
+  },
+  "keywords": [
+    "medical",
+    "reports",
+    "healthcare",
+    "ai",
+    "health",
+    "assistant",
+    "analyze",
+    "medical",
+    "reports"
+  ],
+  "author": "Prince Pandey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/princePandeyGitHub/reportease-backend/issues"
+  },
+  "homepage": "https://github.com/princePandeyGitHub/reportease-backend#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
+  }
+}
