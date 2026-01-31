@@ -4,7 +4,6 @@ const HealthProfileSchema = new mongoose.Schema(
   {
     overview: {
       type: String,
-      trim: true,
     },
 
     conditions: {

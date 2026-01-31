@@ -55,3 +55,45 @@ export const analyzeReport = async (req, res) => {
         res.status(500).json({ message: "Analysis failed", error: err });
     }
 };
+
+export const getReports = async (req, res) => {
+  try {
+    const userId = req.userId; // from authMiddleware
+    const { period } = req.query;
+
+    const filter = { userId };
+
+    // Apply date filter if period is provided
+    if (period) {
+      const now = new Date();
+      let startDate;
+
+      switch (period.toLowerCase()) {
+        case "weekly":
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+          break;
+        case "monthly":
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          break;
+        case "yearly":
+          startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid period query" });
+      }
+
+      filter.createdAt = { $gte: startDate };
+    }
+
+    const reports = await Report.find(filter)
+      .sort({ createdAt: -1 }) // newest first
+      .select("title aiSummary flags createdAt file"); // return only necessary fields
+
+    res.json({ reports });
+  } catch (err) {
+    console.error("GET REPORTS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch reports" });
+  }
+};
+
+
