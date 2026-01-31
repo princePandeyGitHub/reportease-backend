@@ -10,6 +10,7 @@ dotenv.config();
 // importing routes
 import authRoute from './routes/authRoute.js';
 import reportsRoute from './routes/reportsRoute.js';
+import chatRoute from './routes/chatRoute.js'
 
 // default settings
 const app = express();
@@ -30,6 +31,7 @@ mongoose
 // applying routes
 app.use('/auth',authRoute);
 app.use('/reports',reportsRoute);
+app.use('/chat',chatRoute);
 
 
 // default first page
