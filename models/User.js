@@ -4,7 +4,6 @@ const HealthProfileSchema = new mongoose.Schema(
   {
     overview: {
       type: String,
-      maxlength: 2000, // ~300 words safety cap
       trim: true,
     },
 

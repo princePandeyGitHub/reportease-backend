@@ -11,7 +11,8 @@ export const analyzeMedicalReport = async (rawText) => {
   }
 
   const prompt = `
-You are a medical analysis AI. provide detailed ai Summary explaining things with example.
+You are a medical analysis AI. provide detailed analysis of the medical report 
+such that people from non medical background can also understand that.
 
 Return ONLY valid JSON.
 No markdown. No explanations.
@@ -23,6 +24,15 @@ Format EXACTLY:
   "keyFindings": {},
   "flags": []
 }
+
+aiSummary must be a SINGLE LINE string.
+Use "\\n" explicitly for new lines.
+Do NOT include raw line breaks.
+All string values must be JSON-escaped.
+
+1. Explain everything observed in the report to the user in simple human language
+2. list down all the metrics seen in the report with actual and reference values
+3. Suggest the next steps with diet and lifestyle changes if required
 
 Medical report:
 """

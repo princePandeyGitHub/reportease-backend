@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import path from "path";
 
 // accessing env file
 dotenv.config();
@@ -31,7 +30,6 @@ mongoose
 // applying routes
 app.use('/auth',authRoute);
 app.use('/reports',reportsRoute);
-app.use("/uploads/reports", express.static(path.join(process.cwd(), "uploads/reports")));
 
 
 // default first page
