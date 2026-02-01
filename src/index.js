@@ -19,7 +19,12 @@ const PORT = process.env.PORT || 3000;
 // middlewares to parse json request bodies and cors for handling cross origin requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(
+  {
+    origin: true,
+    credentials: true
+  }
+));
 app.use(cookieParser());
 
 // connecting database
@@ -37,6 +42,14 @@ app.use('/chat',chatRoute);
 // default first page
 app.get('/', (req, res) => {
     res.send("Backend is Alive");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV
+  });
 });
 
 //listening the server
