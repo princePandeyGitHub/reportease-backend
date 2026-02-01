@@ -3,59 +3,61 @@ import { analyzeMedicalReport } from '../utils/groqAI.js';
 import { updateUserHealthProfile } from '../utils/updateUserHealthProfile.js';
 import Report from '../../models/Report.js';
 
+// analyze reports controller
 export const analyzeReport = async (req, res) => {
-    try {
-        if (!req.file || !req.body.title) {
-            return res.status(400).json({ message: "PDF and title required" });
-        }
-
-
-        // 1️⃣ OCR (FROM REMOTE URL)
-        const rawText = await extractTextFromPDF(req.file.path);
-
-        // 2️⃣ AI analysis
-        const aiResult = await analyzeMedicalReport(rawText);
-
-        // 3️⃣ File metadata (REMOTE)
-        const fileData = {
-            originalName: req.file.originalname,
-            mimeType: req.file.mimetype,
-            size: req.file.size,
-            url: req.file.path,
-        };
-
-        // 4️⃣ Save report
-        const report = await Report.create({
-            userId: req.userId,
-            title: req.body.title,
-            rawText,
-            aiSummary: aiResult.aiSummary,
-            keyFindings: aiResult.keyFindings,
-            flags: aiResult.flags,
-            file: fileData,
-        });
-
-        // 5️⃣ Update user health profile
-        await updateUserHealthProfile(
-            req.userId,
-            aiResult.aiSummary,
-            aiResult.flags
-        );
-
-        res.status(201).json({
-            message: "Report analyzed successfully",
-            reportId: report._id,
-            aiSummary: report.aiSummary,
-            keyFindings: report.keyFindings,
-            flags: report.flags,
-        });
-
-    } catch (err) {
-        console.error("REPORT ANALYSIS ERROR:", err);
-        res.status(500).json({ message: "Analysis failed", error: err });
+  try {
+    if (!req.file || !req.body.title) {
+      return res.status(400).json({ message: "PDF and title required" });
     }
+
+
+    // 1️⃣ OCR (FROM REMOTE URL)
+    const rawText = await extractTextFromPDF(req.file.path);
+
+    // 2️⃣ AI analysis
+    const aiResult = await analyzeMedicalReport(rawText);
+
+    // 3️⃣ File metadata (REMOTE)
+    const fileData = {
+      originalName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      url: req.file.path,
+    };
+
+    // 4️⃣ Save report
+    const report = await Report.create({
+      userId: req.userId,
+      title: req.body.title,
+      rawText,
+      aiSummary: aiResult.aiSummary,
+      keyFindings: aiResult.keyFindings,
+      flags: aiResult.flags,
+      file: fileData,
+    });
+
+    // 5️⃣ Update user health profile
+    await updateUserHealthProfile(
+      req.userId,
+      aiResult.aiSummary,
+      aiResult.flags
+    );
+
+    res.status(201).json({
+      message: "Report analyzed successfully",
+      reportId: report._id,
+      aiSummary: report.aiSummary,
+      keyFindings: report.keyFindings,
+      flags: report.flags,
+    });
+
+  } catch (err) {
+    console.error("REPORT ANALYSIS ERROR:", err);
+    res.status(500).json({ message: "Analysis failed", error: err });
+  }
 };
 
+// access reports controller
 export const getReports = async (req, res) => {
   try {
     const userId = req.userId; // from authMiddleware
@@ -87,7 +89,7 @@ export const getReports = async (req, res) => {
 
     const reports = await Report.find(filter)
       .sort({ createdAt: -1 }) // newest first
-      .select("title aiSummary flags createdAt file"); // return only necessary fields
+      .select("_id userId title aiSummary keyFindings flags createdAt file"); // return only necessary fields
 
     res.json({ reports });
   } catch (err) {
@@ -95,5 +97,38 @@ export const getReports = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch reports" });
   }
 };
+
+// download report controller
+export const downloadReport = async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.reportId);
+    if (!report) return res.status(404).send("Report not found");
+
+    if (report.userId.toString() !== req.userId) return res.status(403).send("Forbidden");
+
+    const fetch = (await import("node-fetch")).default;
+    const response = await fetch(report.file.url); // raw URL from Cloudinary
+    const buffer = await response.buffer();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${report.file.originalName}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error(error);
+    return res.status(404).json({ message: "report download failed" })
+  }
+
+}
+
+// deleting report controller
+export const deleteReport = async (req, res) => {
+  try {
+    await Report.findByIdAndDelete(req.params.reportId);
+    res.status(200).json({ message: "report deleted " })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "failed to delete report" });
+  }
+}
 
 

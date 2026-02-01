@@ -1,9 +1,8 @@
 // routes/reportsRoute.js
 import express from "express";
-import { analyzeReport, getReports } from "../controllers/reportController.js";
+import { analyzeReport, getReports, downloadReport, deleteReport } from "../controllers/reportController.js";
 import { uploadReport } from "../middlewares/uploadReport.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
-import { downloadReport } from "../controllers/downloadController.js";
 
 const router = express.Router();
 
@@ -17,5 +16,7 @@ router.post(
 router.get("/download/:reportId", authMiddleware, downloadReport);
 
 router.get('/',authMiddleware,getReports);
+
+router.delete('/delete/:reportId', authMiddleware, deleteReport);
 
 export default router;
