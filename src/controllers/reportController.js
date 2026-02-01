@@ -123,7 +123,11 @@ export const downloadReport = async (req, res) => {
 // deleting report controller
 export const deleteReport = async (req, res) => {
   try {
-    await Report.findByIdAndDelete(req.params.reportId);
+    const report = await Report.findById(req.params.reportId);
+    if(!report){
+      return res.status(500).json({ message : "report not found "})
+    };
+    await Report.deleteOne(report._id);
     res.status(200).json({ message: "report deleted " })
   } catch (error) {
     console.error(error);
