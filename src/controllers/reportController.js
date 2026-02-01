@@ -1,7 +1,8 @@
 import { extractTextFromPDF } from '../utils/ocrSpace.js';
 import { analyzeMedicalReport } from '../utils/groqAI.js';
 import { updateUserHealthProfile } from '../utils/updateUserHealthProfile.js';
-import Report from '../../models/Report.js';
+import cloudinary from "../config/cloudinary.js";
+import Report from "../../models/Report.js";
 
 // analyze reports controller
 export const analyzeReport = async (req, res) => {
@@ -23,6 +24,7 @@ export const analyzeReport = async (req, res) => {
       mimeType: req.file.mimetype,
       size: req.file.size,
       url: req.file.path,
+      publicId: req.file.filename
     };
 
     // 4️⃣ Save report
@@ -124,15 +126,32 @@ export const downloadReport = async (req, res) => {
 export const deleteReport = async (req, res) => {
   try {
     const report = await Report.findById(req.params.reportId);
-    if(!report){
-      return res.status(500).json({ message : "report not found "})
-    };
-    await Report.deleteOne(report._id);
-    res.status(200).json({ message: "report deleted " })
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    if (report.userId.toString() !== req.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    // 1️⃣ Delete from Cloudinary (if exists)
+    if (report.file?.publicId) {
+      await cloudinary.uploader.destroy(report.file.publicId, {
+        resource_type: "raw" // IMPORTANT for PDFs
+      });
+    }
+
+    // 2️⃣ Delete from DB
+    await Report.deleteOne({ _id: report._id });
+
+    res.status(200).json({ message: "Report deleted successfully" });
+
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "failed to delete report" });
+    console.error("DELETE REPORT ERROR:", error);
+    res.status(500).json({ message: "Failed to delete report" });
   }
-}
+};
+
 
 

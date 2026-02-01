@@ -37,6 +37,10 @@ const ReportSchema = new Schema(
         type: String, // S3 / Cloudinary / local path
         required: true,
       },
+      publicId: {
+        type: String,
+        required: true
+      }
     },
 
     /* ---------------- OCR + AI ---------------- */
