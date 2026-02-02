@@ -7,7 +7,7 @@ It allows users to upload medical reports, extract and analyze health insights, 
 
 ---
 
-## ✨ Features
+## Features
 
 - Secure user authentication using JWT
 - Upload and manage medical reports (PDFs)
@@ -20,20 +20,80 @@ It allows users to upload medical reports, extract and analyze health insights, 
 
 ---
 
-## 🧠 System Architecture (High-Level)
+## 🧠 System Architecture
 
-Client (Future Frontend / Postman)
-|
-v
+### High-Level Request flow
+```bash
+Client (Frontend / Postman)
+        |
+        |  HTTPS Requests (JSON / multipart-form)
+        v
 Express.js API (Node.js)
-|
-|-- Authentication (JWT)
-|-- Report Processing (OCR + AI)
-|-- Chat System (Contextual AI)
-|
-MongoDB Atlas Cloudinary
-(User / Reports / (Report Files)
-Chats)
+        |
+        |-- Authentication Middleware (JWT)
+        |-- Authorization Checks (User-scoped access)
+        |
+        |-- Controllers
+        |     ├── Auth Controller
+        |     ├── Report Controller
+        |     └── Chat Controller
+        |
+        |-- Services & Utilities
+        |     ├── OCR Service (OCR.space)
+        |     ├── AI Analysis Service (LLM)
+        |     ├── Cloudinary Storage
+        |     └── Health Profile Updater
+        |
+        v
+Persistence & External Services
+```
+
+### Report Processing Pipeline
+``` bash
+PDF Upload
+   |
+   v
+Cloudinary (Raw Storage)
+   |
+   v
+OCR.space API
+   |
+   v
+Extracted Text
+   |
+   v
+AI Analysis (LLM)
+   |
+   v
+Structured Medical Insights
+```
+
+### Health Profile Aggregation
+```bash
+New Report
+   ↓
+AI Summary + Flags
+   ↓
+User Health Overview Updated
+   ↓
+Used as Chat Context
+```
+### Chat System Architecture
+```bash
+User Message
+   |
+   v
+Context Builder
+   ├── Health Overview
+   ├── Last N Chat Messages
+   └── System Instructions
+   |
+   v
+LLM Response
+   |
+   v
+Stored (Limited History)
+```
 
 
 ---
