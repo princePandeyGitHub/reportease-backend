@@ -19,12 +19,15 @@ const PORT = process.env.PORT || 3000;
 // middlewares to parse json request bodies and cors for handling cross origin requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(
-  {
-    origin: true,
-    credentials: true
-  }
-));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173"
+    ],
+    credentials: true,
+  })
+);
+
 app.use(cookieParser());
 
 // connecting database
