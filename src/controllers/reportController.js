@@ -90,6 +90,7 @@ export const getReports = async (req, res) => {
     }
 
     const reports = await Report.find(filter)
+      .populate({ path: "userId", select: "name healthProfile" })
       .sort({ createdAt: -1 }) // newest first
       .select("_id userId title aiSummary keyFindings flags createdAt file"); // return only necessary fields
 
