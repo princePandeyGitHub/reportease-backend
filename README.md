@@ -5,6 +5,8 @@ It allows users to upload medical reports, extract and analyze health insights, 
 
 > ⚠️ This repository contains **backend code only**. Frontend integration is planned.
 
+## Frontend repo - https://github.com/princePandeyGitHub/ReportEase
+
 ---
 
 ## Features
